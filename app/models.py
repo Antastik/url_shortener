@@ -9,7 +9,7 @@ class URL(Base):
     original_url = Column(String, nullable=False)
     short_code = Column(String, unique=True, index=True, nullable=False)
     custom_code = Column(Boolean, default=False)
-    creeated_at = Column(DateTime(timezone=True), server_default=func.now())
+    created_at = Column(DateTime(timezone=True), server_default=func.now())
     is_active = Column(Boolean, default=True)
 
     __table_args__ = (

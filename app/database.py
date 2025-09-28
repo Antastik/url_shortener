@@ -13,16 +13,16 @@ REDIS_URL = os.getenv("REDIS_URL")
 
 if DATABASE_URL and DATABASE_URL.startswith("postgres://"):
     DATABASE_URL = DATABASE_URL.replace("postgres://", "postgresql+asyncpg://", 1)
-# incase the database url is not set, use the default one
+# If no database URL is set, use SQLite for development
 if not DATABASE_URL:
-    DATABASE_URL = "postgresql+asyncpg://postgres:postgres@localhost:5432/url_shortener"
+    DATABASE_URL = "sqlite+aiosqlite:///./url_shortener.db"
 
 # Create Base class
 Base = declarative_base()
 
 # db setup
 engine = create_async_engine(DATABASE_URL, echo=False)
-SessionLocal = sessionmaker(autocommit=False, autoFlush=False, bind=engine, class_=AsyncSession)
+SessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine, class_=AsyncSession)
 
 # redis setup
 redis_client = None
