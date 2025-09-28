@@ -1,6 +1,7 @@
 from fastapi import FastAPI, Request
 from fastapi.middleware.cors import CORSMiddleware
-from fastapi.responses import JSONResponse
+from fastapi.responses import JSONResponse, FileResponse
+from fastapi.staticfiles import StaticFiles
 import uvicorn
 import os
 import logging
@@ -39,19 +40,30 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
-app.include_router(router, prefix="/api/v1")
-app.include_router(router)
+# Mount static files (for frontend)
+if os.path.exists("static"):
+    app.mount("/static", StaticFiles(directory="static"), name="static")
 
-# Root endpoint
+# Include API routes
+app.include_router(router, prefix="/api/v1")
+
+# Serve frontend at root
 @app.get("/")
-async def root():
+async def serve_frontend():
+    """Serve the frontend HTML file"""
+    static_path = Path("static/index.html")
+    if static_path.exists():
+        return FileResponse("static/index.html")
     return {
         "message": "URL Shortener API",
         "version": "1.0.0",
         "docs": "/docs"
     }
 
-# error handling
+# Include redirect routes (for shortened URLs)
+app.include_router(router)
+
+# Error handling
 @app.exception_handler(Exception)
 async def global_exception_handler(request: Request, exc: Exception):
     logger.error(f"Global exception: {str(exc)}")
